@@ -132,9 +132,11 @@ kCMTextFormatDescriptionExtension_VerticalJustification: 0,
 		// Allocate space for the length of text, the text, and any extensions.
 		// This variable should be UnsafeMutablePointer<UInt8> for byte alignment reasons.
 		let samplePtr = UnsafeMutablePointer<UInt8>.allocate(capacity: sampleSize)
-		samplePtr.initialize(repeating: UInt8(0), count: sampleSize)
+		samplePtr.initialize(repeating: UInt8(0),
+							 count: sampleSize)
 		
-		samplePtr.withMemoryRebound(to: UInt16.self, capacity: 1) { ptr in
+		samplePtr.withMemoryRebound(to: UInt16.self,
+									capacity: 1) { ptr in
 			let textLengthBigEndian = textLength.bigEndian
 			ptr.pointee = textLengthBigEndian
 		}
@@ -157,7 +159,8 @@ kCMTextFormatDescriptionExtension_VerticalJustification: 0,
 			// For example, the `CMSampleBuffer` may need to store the forced atom at an arbitrary,
 			// non-UInt32-multiple offset relative to the initial `samplePtr` due to the text length.
 			byteWiseStore(forcedAtomSizeBigEndian, to: ptr)
-			byteWiseStore(forcedAtomBigEndian, to: ptr.advanced(by: MemoryLayout<UInt32>.size))
+			byteWiseStore(forcedAtomBigEndian,
+						  to: ptr.advanced(by: MemoryLayout<UInt32>.size))
 		}
 		
 		var dataBuffer: CMBlockBuffer?

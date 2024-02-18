@@ -53,7 +53,8 @@ fileprivate func deleteExistingFile(_ fileURL: URL) {
 	do {
 		// Check if the output file exists.
 		let resourceValues = try fileURL.resourceValues(forKeys: [.isRegularFileKey])
-		if let isRegularFile = resourceValues.isRegularFile, isRegularFile {
+		if let isRegularFile = resourceValues.isRegularFile,
+			isRegularFile {
 			try FileManager.default.removeItem(at: fileURL)
 			print("Existing file deleted successfully.")
 		}
@@ -69,7 +70,9 @@ fileprivate func deleteExistingFile(_ fileURL: URL) {
 	}
 }
 
-func writeSubtitles(inputPath: String, outputPath: String, subtitlesTextPaths: [String]) {
+func writeSubtitles(inputPath: String,
+					outputPath: String,
+					subtitlesTextPaths: [String]) {
 	// Setup the asset reader and writer.
 	let asset = AVAsset(url: URL(fileURLWithPath: inputPath))
 	
@@ -87,7 +90,8 @@ func writeSubtitles(inputPath: String, outputPath: String, subtitlesTextPaths: [
 	
 	var assetWriter: AVAssetWriter
 	do {
-		assetWriter = try AVAssetWriter(url: outputURL, fileType: /*.mp4*/.mov)
+		assetWriter = try AVAssetWriter(url: outputURL,
+										fileType: /*.mp4*/.mov)
 	}
 	catch {
 		print("Error creating asset writer. Exiting: \(error)")
@@ -114,7 +118,8 @@ func writeSubtitles(inputPath: String, outputPath: String, subtitlesTextPaths: [
 		let mediaType = track.mediaType
 		
 		// Make the reader.
-		let trackOutput = AVAssetReaderTrackOutput(track: track, outputSettings: nil)
+		let trackOutput = AVAssetReaderTrackOutput(track: track,
+												   outputSettings: nil)
 		assetReader.add(trackOutput)
 		
 		// Make the writer input, using a source format hint if a format description is available.
@@ -165,7 +170,8 @@ func writeSubtitles(inputPath: String, outputPath: String, subtitlesTextPaths: [
 	var subtitlesInputsOutputs = [[String: Any]]()
 	for subtitlesPath in subtitlesTextPaths {
 		// Read the contents of the subtitles file
-		guard let text = try? String(contentsOf: URL(fileURLWithPath: subtitlesPath), encoding: .utf8) else {
+		guard let text = try? String(contentsOf: URL(fileURLWithPath: subtitlesPath),
+									 encoding: .utf8) else {
 			print("There was a problem reading a subtitles file")
 			continue
 		}
@@ -180,7 +186,9 @@ func writeSubtitles(inputPath: String, outputPath: String, subtitlesTextPaths: [
 			continue
 		}
 		
-		let subtitlesInput = AVAssetWriterInput(mediaType: .subtitle, outputSettings: nil, sourceFormatHint: formatDescription)
+		let subtitlesInput = AVAssetWriterInput(mediaType: .subtitle,
+												outputSettings: nil,
+												sourceFormatHint: formatDescription)
 
 		subtitlesInput.languageCode = subtitlesTextReader.languageCode
 		subtitlesInput.extendedLanguageTag = subtitlesTextReader.extendedLanguageTag
@@ -190,7 +198,8 @@ func writeSubtitles(inputPath: String, outputPath: String, subtitlesTextPaths: [
 			assetWriter.add(subtitlesInput)
 			
 			// Store the input and output to be used later when actually writing out the new movie.
-			subtitlesInputsOutputs.append(["input": subtitlesInput, "output": subtitlesTextReader])
+			subtitlesInputsOutputs.append(["input": subtitlesInput,
+										   "output": subtitlesTextReader])
 			newSubtitlesInputs.append(subtitlesInput)
 		}
 		else {
@@ -237,7 +246,8 @@ func writeSubtitles(inputPath: String, outputPath: String, subtitlesTextPaths: [
 			groupedSubtitles = true
 		}
 		
-		let inputGroup = AVAssetWriterInputGroup(inputs: inputs, defaultInput: defaultInput)
+		let inputGroup = AVAssetWriterInputGroup(inputs: inputs,
+												 defaultInput: defaultInput)
 		if assetWriter.canAdd(inputGroup) {
 			assetWriter.add(inputGroup)
 		}
@@ -248,7 +258,8 @@ func writeSubtitles(inputPath: String, outputPath: String, subtitlesTextPaths: [
 	
 	// If no legible group was found to add the new subtitles to, create a group for them (if there are any).
 	if !groupedSubtitles && !newSubtitlesInputs.isEmpty {
-		let inputGroup = AVAssetWriterInputGroup(inputs: newSubtitlesInputs, defaultInput: nil)
+		let inputGroup = AVAssetWriterInputGroup(inputs: newSubtitlesInputs,
+												 defaultInput: nil)
 		if assetWriter.canAdd(inputGroup) {
 			assetWriter.add(inputGroup)
 		}
@@ -333,7 +344,8 @@ func writeSubtitles(inputPath: String, outputPath: String, subtitlesTextPaths: [
 	for subtitlesInputOutput in subtitlesInputsOutputs {
 		dispatchGroup.enter()
 		let requestMediaDataQueue = DispatchQueue(label: "request media data")
-		if let input = subtitlesInputOutput["input"] as? AVAssetWriterInput, let subtitlesTextReader = subtitlesInputOutput["output"] as? SubtitlesTextReader {
+		if let input = subtitlesInputOutput["input"] as? AVAssetWriterInput,
+			let subtitlesTextReader = subtitlesInputOutput["output"] as? SubtitlesTextReader {
 			input.requestMediaDataWhenReady(on: requestMediaDataQueue) {
 				while input.isReadyForMoreMediaData {
 					if let nextSampleBuffer = subtitlesTextReader.copyNextSampleBuffer() {
@@ -397,7 +409,8 @@ func main() {
 		index += 1
 	}
 	
-	if let inputPath = inputPath, let outputPath = outputPath {
+	if let inputPath = inputPath,
+		let outputPath = outputPath {
 		writeSubtitles(inputPath: inputPath,
 					   outputPath: outputPath,
 					   subtitlesTextPaths: subtitlesTextPaths)

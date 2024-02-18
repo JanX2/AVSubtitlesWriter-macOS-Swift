@@ -60,30 +60,41 @@ class SubtitlesTextReader {
 	
 	init(text: String) {
 		let textNS = text as NSString
-		let textRange = NSRange(location: 0, length: textNS.length)
+		let textRange = NSRange(location: 0,
+								length: textNS.length)
 
 		let subtitlesExpression: NSRegularExpression
 		
 		do {
 			// Check for a language.
-			let languageExpression = try NSRegularExpression(pattern: "language: (.*)", options: [])
-			if let languageResult = languageExpression.firstMatch(in: text, options: [], range: textRange) {
+			let languageExpression = try NSRegularExpression(pattern: "language: (.*)",
+															 options: [])
+			if let languageResult = languageExpression.firstMatch(in: text,
+																  options: [],
+																  range: textRange) {
 				languageCode = textNS.substring(with: languageResult.range(at: 1))
 			}
 			
 			// Check for an extended language.
-			let extendedLanguageExpression = try NSRegularExpression(pattern: "extended language: (.*)", options: [])
-			if let extendedLanguageResult = extendedLanguageExpression.firstMatch(in: text, options: [], range: textRange) {
+			let extendedLanguageExpression = try NSRegularExpression(pattern: "extended language: (.*)",
+																	 options: [])
+			if let extendedLanguageResult = extendedLanguageExpression.firstMatch(in: text,
+																				  options: [],
+																				  range: textRange) {
 				extendedLanguageTag = textNS.substring(with: extendedLanguageResult.range(at: 1))
 			}
 			
 			// See if SDH has been requested.
-			let characteristicsExpression = try NSRegularExpression(pattern: "characteristics:.*(SDH)", options: .caseInsensitive)
-			if let characteristicsResult = characteristicsExpression.firstMatch(in: text, options: [], range: textRange) {
+			let characteristicsExpression = try NSRegularExpression(pattern: "characteristics:.*(SDH)",
+																	options: .caseInsensitive)
+			if let characteristicsResult = characteristicsExpression.firstMatch(in: text,
+																				options: [],
+																				range: textRange) {
 				wantsSDH = (textNS.substring(with: characteristicsResult.range(at: 1)).caseInsensitiveCompare("SDH") == .orderedSame) ? true : false
 			}
 			
-			subtitlesExpression = try NSRegularExpression(pattern: "(..):(..):(..),(...) --> (..):(..):(..),(...)( !!!)?\n(.*)", options: [])
+			subtitlesExpression = try NSRegularExpression(pattern: "(..):(..):(..),(...) --> (..):(..):(..),(...)( !!!)?\n(.*)",
+														  options: [])
 		}
 		catch {
 			print("Regular expression error: \(error)")
@@ -92,7 +103,9 @@ class SubtitlesTextReader {
 		
 		// Find the subtitle time ranges and text.
 		//var forcedCount = 0
-		subtitlesExpression.enumerateMatches(in: text, options: [], range: textRange) { (result, _, _) in
+		subtitlesExpression.enumerateMatches(in: text,
+											 options: [],
+											 range: textRange) { (result, _, _) in
 			if let result = result {
 				// Get the text.
 				let subtitleText = textNS.substring(with: result.range(at: 10))
@@ -110,8 +123,10 @@ class SubtitlesTextReader {
 				Double(textNS.substring(with: result.range(at: 7)))! +
 				(Double(textNS.substring(with: result.range(at: 8)))! / 1000.0)
 				
-				let timeRange = CMTimeRange(start: CMTime(seconds: startTime, preferredTimescale: 600),
-											duration: CMTime(seconds: endTime - startTime, preferredTimescale: 600))
+				let timeRange = CMTimeRange(start: CMTime(seconds: startTime,
+														  preferredTimescale: 600),
+											duration: CMTime(seconds: endTime - startTime,
+															 preferredTimescale: 600))
 				
 				// Is it forced?
 				var forced = false
